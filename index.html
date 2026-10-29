@@ -1,1 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff6b25">
+<title>Orange Sunset — Spotify Player</title>
 
+<style>
+:root {
+  --c1: #ff681f;
+  --c2: #ffb347;
+  --c3: #ff3d22;
+  --text: #fff8f1;
+  --muted: rgba(255,255,255,.65);
+  --glass: rgba(255,255,255,.09);
+  --border: rgba(255,255,255,.16);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background: #24100e;
+  transition: background 1s ease;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 15% 15%, var(--c2), transparent 45%),
+    radial-gradient(ellipse at 85% 30%, var(--c3), transparent 45%),
+    linear-gradient(145deg, #ff7b28, #b52d35 55%, #24101e);
+  transition: background 1.4s ease;
+}
+
+.background::before {
+  content: "";
+  position: absolute;
+  width: 75vw;
+  height: 75vw;
+  max-width: 850px;
+  max-height: 850px;
+  border-radius: 50%;
+  background: var(--c2);
+  opacity: .22;
+  filter: blur(100px);
+  top: -35%;
+  left: -20%;
+  animation: drift 15s ease-in-out infinite alternate;
+  transition: background 1.4s ease;
+}
+
+.background::after {
+  content: "";
+  position: absolute;
+  width: 65vw;
+  height: 65vw;
+  max-width: 700px;
+  max-height: 700px;
+  border-radius: 50%;
+  background: var(--c3);
+  opacity: .35;
+  filter: blur(110px);
+  bottom: -35%;
+  right: -15%;
+  animation: drift 18s ease-in-out infinite alternate-reverse;
+  transition: background 1.4s ease;
+}
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(9%, 12%) scale(1.18); }
+}
+
+#particles {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.page {
+  width: min(100% - 32px, 920px);
+  margin: auto;
+  padding: 30px 0 35px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 55px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.logo-icon {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--glass);
+  backdrop-filter: blur(15px);
+  font-size: 20px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: var(--glass);
+  backdrop-filter: blur(15px);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  background: #ffad5a;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ffad5a;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 8px 13px;
+  margin-bottom: 17px;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: rgba(255,255,255,.06);
+  color: #ffe0c2;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: clamp(36px, 8vw, 65px);
+  font-weight: 850;
+  letter-spacing: -3px;
+  line-height: 1.05;
+}
+
+h1 span {
+  background: linear-gradient(90deg, #fff4dc, #ffcc88, #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.player {
+  position: relative;
+  width: min(100%, 470px);
+  margin: 0 auto;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: rgba(255,255,255,.085);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 25px 90px rgba(0,0,0,.23);
+  overflow: hidden;
+}
+
+.player::before {
+  content: "";
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  top: -150px;
+  right: -100px;
+  background: var(--c2);
+  filter: blur(80px);
+  opacity: .2;
+  pointer-events: none;
+  transition: background 1.4s ease;
+}
+
+.cover-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 320px;
+  margin: 0 auto 25px;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 25%, #ffd08a, transparent 35%),
+    linear-gradient(145deg, #ff914d, #b22e39 65%, #35142c);
+  box-shadow: 0 18px 55px rgba(0,0,0,.28);
+  transition: box-shadow 1s ease;
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.cover-placeholder {
+  font-size: 78px;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,.2));
+  animation: sunPulse 4s ease-in-out infinite;
+}
+
+@keyframes sunPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.track-info {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.track-name {
+  font-size: clamp(21px, 5vw, 27px);
+  font-weight: 800;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.artist-name {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.track-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 13px;
+  color: #ffe1bf;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.equalizer {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 13px;
+}
+
+.equalizer i {
+  width: 3px;
+  height: 5px;
+  border-radius: 4px;
+  background: #ffbd7b;
+  animation: equalize .7s ease-in-out infinite alternate;
+}
+
+.equalizer i:nth-child(2) { animation-delay: .2s; }
+.equalizer i:nth-child(3) { animation-delay: .4s; }
+
+@keyframes equalize {
+  from { height: 3px; }
+  to { height: 13px; }
+}
+
+.progress-area {
+  margin-bottom: 19px;
+}
+
+.progress {
+  width: 100%;
+  height: 5px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.18);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: #fff2df;
+  box-shadow: 0 0 15px rgba(255,220,175,.6);
+  transition: width .3s linear;
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 9px;
+  color: rgba(255,255,255,.55);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 22px 0;
+}
+
+.control {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: white;
+  background: rgba(255,255,255,.08);
+  text-decoration: none;
+  font-size: 17px;
+  transition: transform .2s, background .2s;
+}
+
+.control:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.18);
+}
+
+.play {
+  width: 57px;
+  height: 57px;
+  border: none;
+  background: #fff3e4;
+  color: #8d3824;
+  font-size: 21px;
+  box-shadow: 0 5px 30px rgba(255,180,110,.2);
+}
+
+.play:hover {
+  background: white;
+}
+
+.spotify-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 18px;
+  border: none;
+  border-radius: 15px;
+  background: #1ed760;
+  color: #092b16;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .2s, filter .2s;
+}
+
+.spotify-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+}
+
+.spotify-icon {
+  font-size: 19px;
+}
+
+.message {
+  margin-top: 14px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.message.error {
+  color: #ffd0b8;
+}
+
+footer {
+  padding: 35px 0 0;
+  text-align: center;
+  color: rgba(255,255,255,.45);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+
+footer span {
+  color: #ffd0a2;
+}
+
+@media (max-width: 480px) {
+  .page {
+    width: min(100% - 24px, 920px);
+    padding-top: 20px;
+  }
+
+  header {
+    margin-bottom: 42px;
+  }
+
+  .logo {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .status {
+    font-size: 9px;
+    padding: 8px 10px;
+  }
+
+  .player {
+    padding: 17px;
+    border-radius: 23px;
+  }
+
+  .cover-wrap {
+    max-width: 290px;
+    margin-bottom: 22px;
+  }
+
+  h1 {
+    letter-spacing: -2px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background" id="background"></div>
+<canvas id="particles"></canvas>
+
+<div class="page">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🌅</div>
+      ORANGE SUNSET
+    </div>
+
+    <div class="status">
+      <span class="dot"></span>
+      <span id="statusText">SUNSET MODE</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">YOUR PERSONAL MUSIC SPACE</div>
+    <h1>Feel the <span>sound.</span></h1>
+    <p class="subtitle">
+      Every song has its own colors.<br>
+      Let the music paint your world.
+    </p>
+  </section>
+
+  <main class="player">
+
+    <div class="cover-wrap">
+      <div class="cover" id="cover">
+        <div class="cover-placeholder" id="placeholder">🌇</div>
+        <img id="albumCover" alt="Обложка альбома">
+      </div>
+    </div>
+
+    <section class="track-info">
+      <h2 class="track-name" id="trackName">Orange Sunset</h2>
+      <p class="artist-name" id="artistName">
+        Your music, your atmosphere
+      </p>
+
+      <div class="track-label">
+        <span class="equalizer" id="equalizer" style="display:none">
+          <i></i><i></i><i></i>
+        </span>
+        <span id="trackStatus">READY TO CONNECT</span>
+      </div>
+    </section>
+
+    <div class="progress-area">
+      <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="times">
+        <span id="currentTime">0:00</span>
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <a class="control" id="openTrack"
+         href="https://open.spotify.com/"
+         target="_blank" rel="noopener"
+         aria-label="Открыть Spotify">↗</a>
+
+      <button class="control play" id="refreshButton"
+              aria-label="Обновить текущий трек">↻</button>
+
+      <button class="control" id="pauseButton"
+              aria-label="Пауза или воспроизведение">Ⅱ</button>
+    </div>
+
+    <button class="spotify-button" id="connectButton">
+      <span class="spotify-icon">●</span>
+      <span id="connectText">CONNECT SPOTIFY</span>
+    </button>
+
+    <p class="message" id="message">
+      Подключи Spotify, чтобы показать текущий трек.
+    </p>
+
+  </main>
+
+  <footer>
+    MADE FOR MUSIC <span>✦</span> ORANGE SUNSET
+  </footer>
+
+</div>
+
+<script>
+/*
+  НАСТРОЙКА SPOTIFY
+
+  1. Создай приложение в Spotify Developer Dashboard.
+  2. Вставь Client ID вместо YOUR_SPOTIFY_CLIENT_ID.
+  3. В настройках приложения добавь Redirect URI —
+     точный адрес опубликованного сайта с / на конце.
+  4. Выбери тот же адрес в REDIRECT_URI ниже.
+
+  Никому не отправляй токены авторизации.
+*/
+
+const CLIENT_ID = "YOUR_SPOTIFY_CLIENT_ID";
+
+const REDIRECT_URI = window.location.origin +
+  window.location.pathname;
+
+const SCOPES = [
+  "user-read-currently-playing",
+  "user-read-playback-state",
+  "user-modify-playback-state"
+].join(" ");
+
+const $ = id => document.getElementById(id);
+
+let accessToken = null;
+let refreshTimer = null;
+let trackDuration = 0;
+let trackProgress = 0;
+let lastUpdate = Date.now();
+let isPlaying = false;
+let currentTrackId = null;
+let requestInProgress = false;
+
+function setMessage(text, error = false) {
+  $("message").textContent = text;
+  $("message").classList.toggle("error", error);
+}
+
+function formatTime(ms) {
+  const total = Math.floor(Math.max(0, ms) / 1000);
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return minutes + ":" + String(seconds).padStart(2, "0");
+}
+
+function setSunset() {
+  document.documentElement.style.setProperty("--c1", "#ff681f");
+  document.documentElement.style.setProperty("--c2", "#ffb347");
+  document.documentElement.style.setProperty("--c3", "#ff3d22");
+
+  $("statusText").textContent = "SUNSET MODE";
+  $("trackStatus").textContent = "SUNSET MODE";
+  $("equalizer").style.display = "none";
+
+  $("cover").style.boxShadow =
+    "0 18px 55px rgba(0,0,0,.28), 0 0 35px rgba(255,130,45,.18)";
+}
+
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+  return {
+    r: parseInt(value.substring(0, 2), 16),
+    g: parseInt(value.substring(2, 4), 16),
+    b: parseInt(value.substring(4, 6), 16)
+  };
+}
+
+function rgbToHex({r, g, b}) {
+  return "#" + [r, g, b]
+    .map(v => Math.round(Math.max(0, Math.min(255, v)))
+    .toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function mixColors(a, b, amount) {
+  return {
+    r: a.r + (b.r - a.r) * amount,
+    g: a.g + (b.g - a.g) * amount,
+    b: a.b + (b.b - a.b) * amount
+  };
+}
+
+function colorFromImage(image) {
+  try {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d", {willReadFrequently: true});
+
+    canvas.width = 24;
+    canvas.height = 24;
+    context.drawImage(image, 0, 0, 24, 24);
+
+    const pixels = context.getImageData(0, 0, 24, 24).data;
+
+    let r = 0, g = 0, b = 0, count = 0;
+
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i + 3] < 100) continue;
+
+      const max = Math.max(pixels[i], pixels[i+1], pixels[i+2]);
+      const min = Math.min(pixels[i], pixels[i+1], pixels[i+2]);
+
+      if (max < 28 || (max - min < 10 && max > 225)) continue;
+
+      r += pixels[i];
+      g += pixels[i+1];
+      b += pixels[i+2];
+      count++;
+    }
+
+    if (!count) return;
+
+    let main = {r:r/count, g:g/count, b:b/count};
+
+    const vivid = mixColors(main, {
+      r: main.r > 125 ? 255 : 255,
+      g: main.g > 120 ? 125 : 90,
+      b: main.b > 120 ? 95 : 45
+    }, 0.24);
+
+    const light = mixColors(vivid, {r:255,g:190,b:110}, 0.45);
+    const dark = mixColors(vivid, {r:70,g:15,b:40}, 0.55);
+
+    document.documentElement.style.setProperty("--c1", rgbToHex(vivid));
+    document.documentElement.style.setProperty("--c2", rgbToHex(light));
+    document.documentElement.style.setProperty("--c3", rgbToHex(dark));
+
+    $("statusText").textContent = "TRACK COLORS";
+
+    $("cover").style.boxShadow =
+      "0 18px 55px rgba(0,0,0,.3), 0 0 45px " +
+      rgbToHex(vivid) + "55";
+
+  } catch (error) {
+    console.warn("Не удалось прочитать цвета обложки:", error);
+  }
+}
+
+function showTrack(data) {
+  if (!data || !data.item) {
+    isPlaying = false;
+    trackProgress = 0;
+    trackDuration = 0;
+
+    $("trackName").textContent = "Orange Sunset";
+    $("artistName").textContent = "Your music, your atmosphere";
+    $("trackStatus").textContent = "NOTHING PLAYING";
+    $("albumCover").style.display = "none";
+    $("placeholder").style.display = "block";
+    $("progressFill").style.width = "0%";
+    $("currentTime").textContent = "0:00";
+    $("duration").textContent = "0:00";
+    $("pauseButton").textContent = "▶";
+    $("equalizer").style.display = "none";
+
+    setSunset();
+    return;
+  }
+
+  const track = data.item;
+  const id = track.id;
+  const changed = id !== currentTrackId;
+
+  currentTrackId = id;
+  isPlaying = Boolean(data.is_playing);
+  trackDuration = track.duration_ms || 0;
+  trackProgress = data.progress_ms || 0;
+  lastUpdate = Date.now();
+
+  $("trackName").textContent = track.name || "Unknown track";
+  $("artistName").textContent =
+    track.artists?.map(artist => artist.name).join(", ") ||
+    "Unknown artist";
+
+  $("trackStatus").textContent =
+    isPlaying ? "NOW PLAYING" : "PAUSED";
+
+  $("statusText").textContent =
+    isPlaying ? "LISTENING NOW" : "PAUSED";
+
+  $("equalizer").style.display = isPlaying ? "inline-flex" : "none";
+  $("pauseButton").textContent = isPlaying ? "Ⅱ" : "▶";
+
+  const image = track.album?.images?.[0]?.url;
+
+  if (image) {
+    const cover = $("albumCover");
+
+    if (cover.src !== image) {
+      cover.onload = () => colorFromImage(cover);
+      cover.onerror = () => setSunset();
+      cover.crossOrigin = "anonymous";
+      cover.src = image;
+    }
+
+    cover.style.display = "block";
+    $("placeholder").style.display = "none";
+  } else {
+    $("albumCover").style.display = "none";
+    $("placeholder").style.display = "block";
+  }
+
+  $("openTrack").href = track.external_urls?.spotify ||
+    "https://open.spotify.com/";
+
+  $("duration").textContent = formatTime(trackDuration);
+  updateProgress();
+
+  if (changed) {
+    $("cover").animate(
+      [
+        {transform:"scale(.97)", opacity:.7},
+        {transform:"scale(1)", opacity:1}
+      ],
+      {duration:500, easing:"ease-out"}
+    );
+  }
+}
+
+function updateProgress() {
+  let progress = trackProgress;
+
+  if (isPlaying) {
+    progress += Date.now() - lastUpdate;
+  }
+
+  progress = Math.min(progress, trackDuration);
+
+  const percent = trackDuration
+    ? progress / trackDuration * 100
+    : 0;
+
+  $("progressFill").style.width = percent + "%";
+  $("currentTime").textContent = formatTime(progress);
+}
+
+async function spotifyRequest(path, options = {}) {
+  const response = await fetch(
+    "https://api.spotify.com/v1" + path,
+    {
+      ...options,
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        ...(options.headers || {})
+      }
+    }
+  );
+
+  if (response.status === 204) return null;
+
+  if (response.status === 401) {
+    accessToken = null;
+    sessionStorage.removeItem("orange_sunset_token");
+    throw new Error("Авторизация истекла. Подключи Spotify заново.");
+  }
+
+  if (response.status === 403) {
+    throw new Error(
+      "Spotify не разрешил это действие. Проверь доступ приложения и аккаунт."
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error("Spotify API вернул ошибку " + response.status);
+  }
+
+  return response.json();
+}
+
+async function refreshTrack() {
+  if (!accessToken || requestInProgress) return;
+
+  requestInProgress = true;
+
+  try {
+    const data = await spotifyRequest(
+      "/me/player/currently-playing"
+    );
+
+    if (data && data.item) {
+      showTrack(data);
+      setMessage("Трек обновлён из твоего Spotify.");
+    } else {
+      showTrack(null);
+      setMessage("Сейчас ничего не играет. Возвращён фон заката.");
+    }
+  } catch (error) {
+    setMessage(error.message, true);
+  } finally {
+    requestInProgress = false;
+  }
+}
+
+function randomString(length = 64) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+
+  const values = crypto.getRandomValues(new Uint8Array(length));
+
+  return Array.from(values, v => chars[v % chars.length]).join("");
+}
+
+async function sha256(plain) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+async function connectSpotify() {
+  if (CLIENT_ID === "YOUR_SPOTIFY_CLIENT_ID") {
+    setMessage(
+      "Сначала добавь Client ID из Spotify Developer Dashboard в код.",
+      true
+    );
+    return;
+  }
+
+  if (window.location.protocol !== "https:" &&
+      window.location.hostname !== "localhost") {
+    setMessage("Открой опубликованный сайт через HTTPS.", true);
+    return;
+  }
+
+  try {
+    const verifier = randomString(64);
+    const challenge = await sha256(verifier);
+    const state = randomString(20);
+
+    sessionStorage.setItem("orange_sunset_verifier", verifier);
+    sessionStorage.setItem("orange_sunset_state", state);
+
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      response_type: "code",
+      redirect_uri: REDIRECT_URI,
+      scope: SCOPES,
+      state,
+      code_challenge_method: "S256",
+      code_challenge: challenge
+    });
+
+    window.location.href =
+      "https://accounts.spotify.com/authorize?" + params.toString();
+
+  } catch (error) {
+    setMessage("Не удалось начать авторизацию: " + error.message, true);
+  }
+}
+
+async function handleSpotifyCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const returnedState = params.get("state");
+  const error = params.get("error");
+
+  if (error) {
+    setMessage("Spotify отменил авторизацию: " + error, true);
+    history.replaceState({}, "", REDIRECT_URI);
+    return;
+  }
+
+  if (!code) return;
+
+  const expectedState = sessionStorage.getItem("orange_sunset_state");
+  const verifier = sessionStorage.getItem("orange_sunset_verifier");
+
+  if (!expectedState || returnedState !== expectedState || !verifier) {
+    setMessage("Проверка авторизации не пройдена. Подключи Spotify заново.", true);
+    history.replaceState({}, "", REDIRECT_URI);
+    return;
+  }
+
+  history.replaceState({}, "", REDIRECT_URI);
+  setMessage("Завершаем подключение Spotify…");
+
+  try {
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: REDIRECT_URI,
+        code_verifier: verifier
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error_description || result.error || "Не удалось получить токен."
+      );
+    }
+
+    accessToken = result.access_token;
+    sessionStorage.removeItem("orange_sunset_verifier");
+    sessionStorage.removeItem("orange_sunset_state");
+
+    $("connectText").textContent = "SPOTIFY CONNECTED";
+    setMessage("Spotify подключён! Загружаем текущий трек…");
+
+    await refreshTrack();
+
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(refreshTrack, 15000);
+
+  } catch (error) {
+    setMessage(
+      "Не удалось подключить Spotify: " + error.message,
+      true
+    );
+  }
+}
+
+$("connectButton").addEventListener("click", connectSpotify);
+
+$("refreshButton").addEventListener("click", () => {
+  if (!accessToken) {
+    setMessage("Сначала подключи Spotify.");
+    return;
+  }
+
+  refreshTrack();
+});
+
+$("pauseButton").addEventListener("click", async () => {
+  if (!accessToken) {
+    setMessage("Сначала подключи Spotify.");
+    return;
+  }
+
+  try {
+    if (isPlaying) {
+      await spotifyRequest("/me/player/pause", {method:"PUT"});
+    } else {
+      await spotifyRequest("/me/player/play", {method:"PUT"});
+    }
+
+    setTimeout(refreshTrack, 1000);
+
+  } catch (error) {
+    setMessage(error.message, true);
+  }
+});
+
+setInterval(updateProgress, 500);
+
+handleSpotifyCallback();
+
+// Частицы заката
+const canvas = $("particles");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  particles = Array.from({length:
+    Math.min(55, Math.floor(window.innerWidth / 7))}, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    size: Math.random() * 2 + .5,
+    speed: Math.random() * .35 + .08,
+    opacity: Math.random() * .45 + .1,
+    phase: Math.random() * Math.PI * 2
+  }));
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+  for (const p of particles) {
+    p.y -= p.speed;
+    p.x += Math.sin(p.phase) * .25;
+    p.phase += .008;
+
+    if (p.y < -5) {
+      p.y = window.innerHeight + 5;
+      p.x = Math.random() * window.innerWidth;
+    }
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,220,175,${p.opacity})`;
+    ctx.fill();
+  }
+
+  requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
+animateParticles();
+setSunset();
+</script>
+
+</body>
+  </html>
